@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -20,6 +21,9 @@ public class MyToggleButton extends View implements View.OnClickListener{
     private int slideLeftMax;
     private boolean curState = false;
     private boolean clickEnable = true;
+    private float lastX;
+    private float startX;
+
     public MyToggleButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView();
@@ -54,6 +58,32 @@ public class MyToggleButton extends View implements View.OnClickListener{
     protected void onDraw(Canvas canvas) {
         canvas.drawBitmap(backgroundBitmap, 0, 0, paint);
         canvas.drawBitmap(slideBitmap, slideLeft, 0, paint);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        super.onTouchEvent(event);
+        switch (event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                lastX = startX = event.getX();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float newX = event.getX();
+                float distanceX = newX - startX;
+                flushView(distanceX);
+                startX = event.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    private void flushView(float distanceX){
+        slideLeft  +=  distanceX;
+        invalidate();
     }
 
     @Override
